@@ -1,0 +1,7 @@
+{
+  "address": "assets/",
+  "socket_url": "ws://localhost:3000",
+  "socket_event": "server send",
+  "image_width": 600,
+  "image_height": 600
+}
