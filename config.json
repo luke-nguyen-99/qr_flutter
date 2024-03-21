@@ -1,7 +1,6 @@
 {
-  "address": "/",
-  "socket_url": "ws://localhost:3000",
-  "socket_event": "server send",
-  "image_width": 600,
-  "image_height": 600
+  "socket_port": 8182,
+  "socket_event": "Laputa",
+  "image_width": 600.0,
+  "image_height": 600.0
 }
