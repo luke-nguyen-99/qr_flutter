@@ -51,6 +51,37 @@ class _HomeScreen extends State<HomeScreen> {
   double imageHeight = 600.0;
   Socket? socket;
 
+  bool isBase64(String? value) {
+    try {
+      if (value == null) {
+        return false;
+      }
+      return base64.encode(base64.decode(value)) == value;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  String formatCurrencyVN(String value) {
+    int amount = int.parse(value);
+    // Định dạng tiền tệ Việt Nam
+    final currencyFormat = NumberFormat.currency(
+      locale: 'vi-VN',
+      symbol: 'VND',
+      decimalDigits: 0,
+    );
+
+    // Chuyển đổi số sang định dạng tiền tệ
+    return currencyFormat.format(amount);
+  }
+
+  String formatTime(int remaining) {
+    int minutes = remaining ~/ 60;
+    int seconds = remaining % 60;
+    return '$minutes : $seconds';
+  }
+
+
   @override
   void initState() {
     try {
@@ -63,9 +94,9 @@ class _HomeScreen extends State<HomeScreen> {
         String event = config['socket_event'] ?? 'Laputa';
         int port = config['socket_port'] ?? 8182;
 
-        HttpServer.bind(InternetAddress.loopbackIPv4, port, backlog: 2)
+        HttpServer.bind(InternetAddress.anyIPv4, port, backlog: 2)
         .then((httpServer) {
-          print('socket running in: ${httpServer.address}:${httpServer.port}');
+          // print('socket running in: ${httpServer.address}:${httpServer.port}');
           httpServer.listen((req) {
             if (req.uri.path == '/$event') {
               WebSocketTransformer.upgrade(req).then((socket) {
@@ -81,12 +112,11 @@ class _HomeScreen extends State<HomeScreen> {
                           base64String = object['qrBase64'] ?? 'ERROR';
                           message = object.containsKey('price') ? "Thành tiền: ${formatCurrencyVN(object['price'])}": '';
                           expireTime = object['expireTime'];
-                          // expireTime = 1800;
 
                           if (base64String == 'CLOSE') {
                             setState(() {
                               message = '';
-                              expireTime = 15;
+                              expireTime = 14;
                             });
 
                             Timer(const Duration(milliseconds: 15000), () {
@@ -107,7 +137,6 @@ class _HomeScreen extends State<HomeScreen> {
                           }
                           return setState(() {
                             keyTimeRunning++;
-                            print(keyTimeRunning);
                           });
                         }
                       }
@@ -134,8 +163,28 @@ class _HomeScreen extends State<HomeScreen> {
               });
             }
           });
-        });
-
+        })
+        .catchError(
+          (e) {
+            setState(() {
+              base64String = 'ERROR';
+              message = e.toString();
+              expireTime = 0;
+            });
+          },
+          test: (error) {
+            return false;
+          }
+        )
+        .onError((e, stackTrace) {
+          setState(() {
+            base64String = 'ERROR';
+            message = e.toString();
+            expireTime = 0;
+          });
+        })
+        ; 
+        
       });
 
     } catch (e) {
@@ -147,23 +196,20 @@ class _HomeScreen extends State<HomeScreen> {
     }
   }
 
-  String _formatTime(int remaining) {
-    int minutes = remaining ~/ 60;
-    int seconds = remaining % 60;
-    return '$minutes : $seconds';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
+      body: SizedBox(
+        width: double.infinity,
+        // showTrackOnHover: false,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             verticalDirection: VerticalDirection.down,
             children: <Widget>[
+              const Text(''),
               // Image
               base64String == null
                 ? const Text('')
@@ -175,7 +221,7 @@ class _HomeScreen extends State<HomeScreen> {
                   : base64String == 'ERROR'
                     ? Text(
                       'Lỗi không xác định:',
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
                           ),
@@ -183,12 +229,12 @@ class _HomeScreen extends State<HomeScreen> {
                     : isBase64(base64String)
                       ? Image.memory(
                           base64Decode(base64String!),
-                          width: MediaQuery.of(context).size.width <= 600 ? 300.0 : imageWidth,
-                          height: MediaQuery.of(context).size.width <= 600 ? 300.0 : imageHeight,
+                          width: MediaQuery.of(context).size.width <= 600 ? 200.0 : imageWidth,
+                          height: MediaQuery.of(context).size.width <= 600 ? 200.0 : imageHeight,
                           fit: BoxFit.cover,
                         )
                       : Text(
-                          'Không thể gen QR',
+                          'Không thể gen QR: $base64String',
                           style: Theme.of(context).textTheme.displayLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
@@ -217,7 +263,7 @@ class _HomeScreen extends State<HomeScreen> {
                     ),
                     shouldShowMinutes: (p0) => true,
                     shouldShowSeconds: (p0) => true,
-                    duration: Duration(seconds: expireTime),
+                    duration: Duration(seconds: expireTime + 2),
                     onDone: () {
                       keyTimeRunning = 0;
                       return setState(() {
@@ -233,28 +279,4 @@ class _HomeScreen extends State<HomeScreen> {
       ),
     );
   }
-}
-
-bool isBase64(String? value) {
-  try {
-    if (value == null) {
-      return false;
-    }
-    return base64.encode(base64.decode(value)) == value;
-  } catch (e) {
-    return false;
-  }
-}
-
-String formatCurrencyVN(String value) {
-  int amount = int.parse(value);
-  // Định dạng tiền tệ Việt Nam
-  final currencyFormat = NumberFormat.currency(
-    locale: 'vi-VN',
-    symbol: 'VND',
-    decimalDigits: 0,
-  );
-
-  // Chuyển đổi số sang định dạng tiền tệ
-  return currencyFormat.format(amount);
 }
