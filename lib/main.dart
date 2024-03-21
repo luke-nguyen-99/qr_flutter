@@ -7,9 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 // import  from '@mui/icons-material/Check';
 
-
 Future<dynamic> loadConfig() async {
-  String configString = await rootBundle.loadString('config.json', cache: false);
+  String configString =
+      await rootBundle.loadString('config.json', cache: false);
   return json.decode(configString);
 }
 
@@ -33,14 +33,13 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key });
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreen();
 }
 
 class _HomeScreen extends State<HomeScreen> {
-
   int keyTimeRunning = 0;
 
   String? base64String;
@@ -56,15 +55,14 @@ class _HomeScreen extends State<HomeScreen> {
     try {
       super.initState();
       loadConfig().then((config) {
-        
         imageWidth = config['image_width'] ?? 600.0;
         imageHeight = config['image_height'] ?? 600.0;
 
         String event = config['socket_event'] ?? 'Laputa';
         int port = config['socket_port'] ?? 8182;
 
-        HttpServer.bind(InternetAddress.loopbackIPv4, port, backlog: 2)
-        .then((httpServer) {
+        HttpServer.bind(InternetAddress.anyIPv4, port, backlog: 2)
+            .then((httpServer) {
           print('socket running in: ${httpServer.address}:${httpServer.port}');
           httpServer.listen((req) {
             if (req.uri.path == '/$event') {
@@ -72,14 +70,15 @@ class _HomeScreen extends State<HomeScreen> {
                 socket.listen(
                   (value) {
                     try {
-
                       dynamic data = jsonDecode(value);
-                      if(data is Map && data.containsKey('data')) {
+                      if (data is Map && data.containsKey('data')) {
                         dynamic object = jsonDecode(data['data']);
 
                         if (object is Map) {
                           base64String = object['qrBase64'] ?? 'ERROR';
-                          message = object.containsKey('price') ? "Thành tiền: ${formatCurrencyVN(object['price'])}": '';
+                          message = object.containsKey('price')
+                              ? "Thành tiền: ${formatCurrencyVN(object['price'])}"
+                              : '';
                           expireTime = object['expireTime'];
                           // expireTime = 1800;
 
@@ -111,7 +110,6 @@ class _HomeScreen extends State<HomeScreen> {
                           });
                         }
                       }
-                      
                     } catch (e) {
                       setState(() {
                         base64String = 'ERROR';
@@ -121,7 +119,7 @@ class _HomeScreen extends State<HomeScreen> {
                     }
                   },
                   onDone: () {},
-                  onError: (e) { 
+                  onError: (e) {
                     setState(() {
                       base64String = 'ERROR';
                       message = e.toString();
@@ -130,20 +128,17 @@ class _HomeScreen extends State<HomeScreen> {
                   },
                   cancelOnError: false,
                 );
-
               });
             }
           });
         });
-
       });
-
     } catch (e) {
       setState(() {
         base64String = 'ERROR';
         message = e.toString();
         expireTime = 0;
-      }); 
+      });
     }
   }
 
@@ -166,67 +161,92 @@ class _HomeScreen extends State<HomeScreen> {
             children: <Widget>[
               // Image
               base64String == null
-                ? const Text('')
-                : base64String == 'CLOSE'
-                  ? Icon(
-                    size: MediaQuery.of(context).size.width > 600 ? 600: 300.0,
-                      const IconData(0xe156, fontFamily: 'MaterialIcons')
-                    )
-                  : base64String == 'ERROR'
-                    ? Text(
-                      'Lỗi không xác định:',
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
-                          ),
-                      )
-                    : isBase64(base64String)
-                      ? Image.memory(
-                          base64Decode(base64String!),
-                          width: MediaQuery.of(context).size.width <= 600 ? 300.0 : imageWidth,
-                          height: MediaQuery.of(context).size.width <= 600 ? 300.0 : imageHeight,
-                          fit: BoxFit.cover,
-                        )
-                      : Text(
-                          'Không thể gen QR',
-                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
-                          ),
-                        ),
+                  ? const Text('')
+                  : base64String == 'CLOSE'
+                      ? Icon(
+                          size: MediaQuery.of(context).size.width > 600
+                              ? 600
+                              : 300.0,
+                          const IconData(0xe156, fontFamily: 'MaterialIcons'))
+                      : base64String == 'ERROR'
+                          ? Text(
+                              'Lỗi không xác định:',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        MediaQuery.of(context).size.width > 600
+                                            ? 55
+                                            : 25.0,
+                                  ),
+                            )
+                          : isBase64(base64String)
+                              ? Image.memory(
+                                  base64Decode(base64String!),
+                                  width:
+                                      MediaQuery.of(context).size.width <= 600
+                                          ? 200.0
+                                          : imageWidth,
+                                  height:
+                                      MediaQuery.of(context).size.width <= 600
+                                          ? 200.0
+                                          : imageHeight,
+                                  fit: BoxFit.cover,
+                                )
+                              : Text(
+                                  'Không thể gen QR',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displayLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width >
+                                                    600
+                                                ? 55
+                                                : 25.0,
+                                      ),
+                                ),
+              const Text(''),
               Text(
                 message,
+                textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
-                ),
+                      fontWeight: FontWeight.bold,
+                      fontSize:
+                          MediaQuery.of(context).size.width > 600 ? 55 : 25.0,
+                    ),
               ),
               expireTime == 0
-                ? const Text('')
-                : SlideCountdown(
-                    key: ValueKey(keyTimeRunning),
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
-                      fontWeight: FontWeight.bold
-                    ),
-                    decoration: const BoxDecoration(color: Colors.white),
-                    separatorStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.width > 600 ? 50: 20.0,
-                      fontWeight: FontWeight.bold
-                    ),
-                    shouldShowMinutes: (p0) => true,
-                    shouldShowSeconds: (p0) => true,
-                    duration: Duration(seconds: expireTime),
-                    onDone: () {
-                      keyTimeRunning = 0;
-                      return setState(() {
-                        base64String = null;
-                        message = '';
-                        expireTime = 0;
-                      });
-                    },
-                  )
+                  ? const Text('')
+                  : SlideCountdown(
+                      key: ValueKey(keyTimeRunning),
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width > 600
+                              ? 55
+                              : 25.0,
+                          fontWeight: FontWeight.bold),
+                      decoration: const BoxDecoration(color: Colors.white),
+                      separatorStyle: TextStyle(
+                          color: Colors.black,
+                          fontSize: MediaQuery.of(context).size.width > 600
+                              ? 50
+                              : 20.0,
+                          fontWeight: FontWeight.bold),
+                      shouldShowMinutes: (p0) => true,
+                      shouldShowSeconds: (p0) => true,
+                      duration: Duration(seconds: expireTime),
+                      onDone: () {
+                        keyTimeRunning = 0;
+                        return setState(() {
+                          base64String = null;
+                          message = '';
+                          expireTime = 0;
+                        });
+                      },
+                    )
             ],
           ),
         ),
