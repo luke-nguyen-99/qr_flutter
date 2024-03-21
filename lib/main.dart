@@ -160,7 +160,6 @@ class _HomeScreen extends State<HomeScreen> {
               });
             }
           });
-<<<<<<< HEAD
         })
         .catchError(
           (e) {
@@ -183,9 +182,6 @@ class _HomeScreen extends State<HomeScreen> {
         })
         ; 
         
-=======
-        });
->>>>>>> d13725b921c1494ac66b89e2b1323f85ba36b763
       });
     } catch (e) {
       setState(() {
@@ -212,7 +208,6 @@ class _HomeScreen extends State<HomeScreen> {
               const Text(''),
               // Image
               base64String == null
-<<<<<<< HEAD
                 ? const Text('')
                 : base64String == 'CLOSE'
                   ? Icon(
@@ -241,57 +236,6 @@ class _HomeScreen extends State<HomeScreen> {
                             fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
                           ),
                         ),
-=======
-                  ? const Text('')
-                  : base64String == 'CLOSE'
-                      ? Icon(
-                          size: MediaQuery.of(context).size.width > 600
-                              ? 600
-                              : 300.0,
-                          const IconData(0xe156, fontFamily: 'MaterialIcons'))
-                      : base64String == 'ERROR'
-                          ? Text(
-                              'Lỗi không xác định:',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width > 600
-                                            ? 55
-                                            : 25.0,
-                                  ),
-                            )
-                          : isBase64(base64String)
-                              ? Image.memory(
-                                  base64Decode(base64String!),
-                                  width:
-                                      MediaQuery.of(context).size.width <= 600
-                                          ? 200.0
-                                          : imageWidth,
-                                  height:
-                                      MediaQuery.of(context).size.width <= 600
-                                          ? 200.0
-                                          : imageHeight,
-                                  fit: BoxFit.cover,
-                                )
-                              : Text(
-                                  'Không thể gen QR',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displayLarge
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize:
-                                            MediaQuery.of(context).size.width >
-                                                    600
-                                                ? 55
-                                                : 25.0,
-                                      ),
-                                ),
-              const Text(''),
->>>>>>> d13725b921c1494ac66b89e2b1323f85ba36b763
               Text(
                 message,
                 textAlign: TextAlign.center,
@@ -302,7 +246,6 @@ class _HomeScreen extends State<HomeScreen> {
                     ),
               ),
               expireTime == 0
-<<<<<<< HEAD
                 ? const Text('')
                 : SlideCountdown(
                     key: ValueKey(keyTimeRunning),
@@ -328,35 +271,6 @@ class _HomeScreen extends State<HomeScreen> {
                       });
                     },
                   )
-=======
-                  ? const Text('')
-                  : SlideCountdown(
-                      key: ValueKey(keyTimeRunning),
-                      style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width > 600
-                              ? 55
-                              : 25.0,
-                          fontWeight: FontWeight.bold),
-                      decoration: const BoxDecoration(color: Colors.white),
-                      separatorStyle: TextStyle(
-                          color: Colors.black,
-                          fontSize: MediaQuery.of(context).size.width > 600
-                              ? 50
-                              : 20.0,
-                          fontWeight: FontWeight.bold),
-                      shouldShowMinutes: (p0) => true,
-                      shouldShowSeconds: (p0) => true,
-                      duration: Duration(seconds: expireTime),
-                      onDone: () {
-                        keyTimeRunning = 0;
-                        return setState(() {
-                          base64String = null;
-                          message = '';
-                          expireTime = 0;
-                        });
-                      },
-                    )
->>>>>>> d13725b921c1494ac66b89e2b1323f85ba36b763
             ],
           ),
         ),
