@@ -48,6 +48,7 @@ class _HomeScreen extends State<HomeScreen> {
 
   double imageWidth = 600.0;
   double imageHeight = 600.0;
+  double textSize = 55.0;
   Socket? socket;
 
   bool isBase64(String? value) {
@@ -80,7 +81,6 @@ class _HomeScreen extends State<HomeScreen> {
     return '$minutes : $seconds';
   }
 
-
   @override
   void initState() {
     try {
@@ -88,12 +88,13 @@ class _HomeScreen extends State<HomeScreen> {
       loadConfig().then((config) {
         imageWidth = config['image_width'] ?? 600.0;
         imageHeight = config['image_height'] ?? 600.0;
+        textSize = config['text_size'] ?? 55.0;
 
         String event = config['socket_event'] ?? 'Laputa';
         int port = config['socket_port'] ?? 8182;
 
         HttpServer.bind(InternetAddress.anyIPv4, port, backlog: 2)
-        .then((httpServer) {
+            .then((httpServer) {
           // print('socket running in: ${httpServer.address}:${httpServer.port}');
           httpServer.listen((req) {
             if (req.uri.path == '/$event') {
@@ -160,28 +161,21 @@ class _HomeScreen extends State<HomeScreen> {
               });
             }
           });
-        })
-        .catchError(
-          (e) {
-            setState(() {
-              base64String = 'ERROR';
-              message = e.toString();
-              expireTime = 0;
-            });
-          },
-          test: (error) {
-            return false;
-          }
-        )
-        .onError((e, stackTrace) {
+        }).catchError((e) {
           setState(() {
             base64String = 'ERROR';
             message = e.toString();
             expireTime = 0;
           });
-        })
-        ; 
-        
+        }, test: (error) {
+          return false;
+        }).onError((e, stackTrace) {
+          setState(() {
+            base64String = 'ERROR';
+            message = e.toString();
+            expireTime = 0;
+          });
+        });
       });
     } catch (e) {
       setState(() {
@@ -208,69 +202,92 @@ class _HomeScreen extends State<HomeScreen> {
               const Text(''),
               // Image
               base64String == null
-                ? const Text('')
-                : base64String == 'CLOSE'
-                  ? Icon(
-                    size: MediaQuery.of(context).size.width > 600 ? 600: 300.0,
-                      const IconData(0xe156, fontFamily: 'MaterialIcons')
-                    )
-                  : base64String == 'ERROR'
-                    ? Text(
-                      'Lỗi không xác định:',
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
-                          ),
-                      )
-                    : isBase64(base64String)
-                      ? Image.memory(
-                          base64Decode(base64String!),
-                          width: MediaQuery.of(context).size.width <= 600 ? 200.0 : imageWidth,
-                          height: MediaQuery.of(context).size.width <= 600 ? 200.0 : imageHeight,
-                          fit: BoxFit.cover,
-                        )
-                      : Text(
-                          'Không thể gen QR: $base64String',
-                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
-                          ),
-                        ),
+                  ? const Text('')
+                  : base64String == 'CLOSE'
+                      ? Icon(
+                          size: MediaQuery.of(context).size.width > 600
+                              ? imageWidth
+                              : 300.0,
+                          const IconData(0xe156, fontFamily: 'MaterialIcons'))
+                      : base64String == 'ERROR'
+                          ? Text(
+                              'Lỗi không xác định:',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        MediaQuery.of(context).size.width > 600
+                                            ? 55
+                                            : 25.0,
+                                  ),
+                            )
+                          : isBase64(base64String)
+                              ? Image.memory(
+                                  base64Decode(base64String!),
+                                  width:
+                                      MediaQuery.of(context).size.width <= 600
+                                          ? 200.0
+                                          : imageWidth,
+                                  height:
+                                      MediaQuery.of(context).size.width <= 600
+                                          ? 200.0
+                                          : imageHeight,
+                                  fit: BoxFit.cover,
+                                )
+                              : Text(
+                                  'Không thể gen QR: $base64String',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displayLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width >
+                                                    600
+                                                ? textSize
+                                                : 25.0,
+                                      ),
+                                ),
               Text(
                 message,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize:
-                          MediaQuery.of(context).size.width > 600 ? 55 : 25.0,
+                      fontSize: MediaQuery.of(context).size.width > 600
+                          ? textSize
+                          : 25.0,
                     ),
               ),
               expireTime == 0
-                ? const Text('')
-                : SlideCountdown(
-                    key: ValueKey(keyTimeRunning),
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width > 600 ? 55: 25.0,
-                      fontWeight: FontWeight.bold
-                    ),
-                    decoration: const BoxDecoration(color: Colors.white),
-                    separatorStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.width > 600 ? 50: 20.0,
-                      fontWeight: FontWeight.bold
-                    ),
-                    shouldShowMinutes: (p0) => true,
-                    shouldShowSeconds: (p0) => true,
-                    duration: Duration(seconds: expireTime + 2),
-                    onDone: () {
-                      keyTimeRunning = 0;
-                      return setState(() {
-                        base64String = null;
-                        message = '';
-                        expireTime = 0;
-                      });
-                    },
-                  )
+                  ? const Text('')
+                  : SlideCountdown(
+                      key: ValueKey(keyTimeRunning),
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width > 600
+                              ? textSize
+                              : 25.0,
+                          fontWeight: FontWeight.bold),
+                      decoration: const BoxDecoration(color: Colors.white),
+                      separatorStyle: TextStyle(
+                          color: Colors.black,
+                          fontSize: MediaQuery.of(context).size.width > 600
+                              ? textSize - 5
+                              : 20.0,
+                          fontWeight: FontWeight.bold),
+                      shouldShowMinutes: (p0) => true,
+                      shouldShowSeconds: (p0) => true,
+                      duration: Duration(seconds: expireTime + 2),
+                      onDone: () {
+                        keyTimeRunning = 0;
+                        return setState(() {
+                          base64String = null;
+                          message = '';
+                          expireTime = 0;
+                        });
+                      },
+                    )
             ],
           ),
         ),
