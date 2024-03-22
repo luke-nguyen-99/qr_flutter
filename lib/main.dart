@@ -63,16 +63,20 @@ class _HomeScreen extends State<HomeScreen> {
   }
 
   String formatCurrencyVN(String value) {
-    int amount = int.parse(value);
-    // Định dạng tiền tệ Việt Nam
-    final currencyFormat = NumberFormat.currency(
-      locale: 'vi-VN',
-      symbol: 'VND',
-      decimalDigits: 0,
-    );
+    try {
+      int amount = int.parse(value);
+      // Định dạng tiền tệ Việt Nam
+      final currencyFormat = NumberFormat.currency(
+        locale: 'vi-VN',
+        symbol: 'VND',
+        decimalDigits: 0,
+      );
 
-    // Chuyển đổi số sang định dạng tiền tệ
-    return currencyFormat.format(amount);
+      // Chuyển đổi số sang định dạng tiền tệ
+      return currencyFormat.format(amount);
+    } catch (e) {
+      return value;
+    }
   }
 
   String formatTime(int remaining) {
