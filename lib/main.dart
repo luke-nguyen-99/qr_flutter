@@ -41,6 +41,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreen extends State<HomeScreen> {
   int keyTimeRunning = 0;
+  bool isOkDisplay = false;
 
   String? base64String;
   String message = '';
@@ -120,31 +121,40 @@ class _HomeScreen extends State<HomeScreen> {
                           if (base64String == 'CLOSE') {
                             setState(() {
                               message = '';
-                              expireTime = 14;
+                              expireTime = 15;
                             });
+                            isOkDisplay = true;
 
-                            Timer(const Duration(milliseconds: 15000), () {
-                              setState(() {
-                                base64String = null;
-                                message = '';
-                                expireTime = 0;
-                              });
+                            Future.delayed(const Duration(seconds: 15))
+                                .then((value) {
+                              if (isOkDisplay) {
+                                isOkDisplay = false;
+                                setState(() {
+                                  base64String = null;
+                                  message = '';
+                                  expireTime = 0;
+                                });
+                              }
                             });
                           }
 
                           if (base64String == '') {
+                            isOkDisplay = false;
                             return setState(() {
                               base64String = 'ERROR';
                               message = 'QR trống';
                               expireTime = 0;
                             });
                           }
+
+                          isOkDisplay = false;
                           return setState(() {
                             keyTimeRunning++;
                           });
                         }
                       }
                     } catch (e) {
+                      isOkDisplay = false;
                       setState(() {
                         base64String = 'ERROR';
                         message = e.toString();
@@ -154,6 +164,7 @@ class _HomeScreen extends State<HomeScreen> {
                   },
                   onDone: () {},
                   onError: (e) {
+                    isOkDisplay = false;
                     setState(() {
                       base64String = 'ERROR';
                       message = e.toString();
@@ -166,6 +177,7 @@ class _HomeScreen extends State<HomeScreen> {
             }
           });
         }).catchError((e) {
+          isOkDisplay = false;
           setState(() {
             base64String = 'ERROR';
             message = e.toString();
@@ -174,6 +186,7 @@ class _HomeScreen extends State<HomeScreen> {
         }, test: (error) {
           return false;
         }).onError((e, stackTrace) {
+          isOkDisplay = false;
           setState(() {
             base64String = 'ERROR';
             message = e.toString();
@@ -182,6 +195,7 @@ class _HomeScreen extends State<HomeScreen> {
         });
       });
     } catch (e) {
+      isOkDisplay = false;
       setState(() {
         base64String = 'ERROR';
         message = e.toString();
@@ -285,6 +299,7 @@ class _HomeScreen extends State<HomeScreen> {
                       duration: Duration(seconds: expireTime + 2),
                       onDone: () {
                         keyTimeRunning = 0;
+                        isOkDisplay = false;
                         return setState(() {
                           base64String = null;
                           message = '';
