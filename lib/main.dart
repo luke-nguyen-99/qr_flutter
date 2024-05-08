@@ -27,7 +27,34 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(),
+      home: Scaffold(
+        body: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: Colors.black,
+              ),
+            ),
+
+            Expanded(
+              flex: 5,
+              child: Container(
+                alignment: Alignment.center,
+                color: Colors.white,
+                child: const HomeScreen(),
+              ),
+            ),
+
+            Expanded(
+              child: Container(
+                color: Colors.black,
+                // child: const Center(child: Text('Right Column')),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -217,7 +244,6 @@ class _HomeScreen extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             verticalDirection: VerticalDirection.down,
             children: <Widget>[
-              const Text(''),
               // Image
               base64String == null
                   ? const Text('')
