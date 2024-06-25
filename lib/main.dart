@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         body: Row(
           children: [
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Container(
                 color: Colors.black,
               ),
@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
             ),
 
             Expanded(
+              flex: 2,
               child: Container(
                 color: Colors.black,
                 // child: const Center(child: Text('Right Column')),
